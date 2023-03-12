@@ -1,125 +1,159 @@
 'use strict';
 
-//milestone 1 creo gli array per autore e post
 
-/*-------------
-SETUP VARIABLES
---------------*/
+//milestone 1
 
-const authors = [
-    {
-        name: 'Kalle Anka',
-        image: 'https://unsplash.it/300/300/?image=',
-        age: 39,
-        nPosts: 150
-    }
-];
+/************
+ * SETUP VARIABLES
+ ************/
+
+// contenitore dei post
+const containerElement = document.getElementById('container');
+// elemento post da duplicare per rappresentare il post
+const templateElement = document.getElementById('template-post');
+
+let counter = 0;
+//struttura dati contenente la rappresentazione dei post
 const posts = [
-    { 
+    {
         id: 1,
         author: {
-            name: 'Kalle Anka',
-            image: 'path',
+            name: 'Gaetano Frascolla',
+            image: 'https://unsplash.it/300/300?image=20',
             age: 39,
             nPosts: 150
         },
-        created: '03-10-2023',
+        created: '3-10-2023',
         content: 'Lorem ipsum',
-        media: 'https://unsplash.it/300/300/?image=',
-        likes: 80
+        media: 'https://unsplash.it/600/300?image=14',
+        likes: 1
     },
-    { 
+    {
         id: 2,
         author: {
-            name: 'Kalle Anka',
-            image: 'path',
+            name: 'Filippo Bonafini',
+            image: 'https://unsplash.it/300/300?image=',
             age: 39,
             nPosts: 150
         },
         created: '03-10-2023',
         content: 'Lorem ipsum',
-        media: 'https://unsplash.it/300/300/?image=',
+        media: 'https://unsplash.it/600/300?image=40',
         likes: 80
     },
-    { 
+    {
         id: 3,
         author: {
-            name: 'Kalle Anka',
-            image: 'path',
+            name: 'Gaetano Frascolla',
+            image: 'https://unsplash.it/300/300?image=',
             age: 39,
             nPosts: 150
         },
         created: '03-10-2023',
         content: 'Lorem ipsum',
-        media: 'https://unsplash.it/300/300/?image=',
+        media: 'https://unsplash.it/600/300?image=21',
         likes: 80
     },
-    { 
+    {
         id: 4,
         author: {
-            name: 'Kalle Anka',
-            image: 'path',
+            name: 'Gaetano Frascolla',
+            image: 'https://unsplash.it/300/300?image=',
             age: 39,
-            nPosts: 150
+            nPosts: 150,
         },
         created: '03-10-2023',
         content: 'Lorem ipsum',
-        media: 'https://unsplash.it/300/300/?image=',
+        media: 'https://unsplash.it/600/300?image=30',
         likes: 80
-    },
+    }
 ];
+let likedPosts = [];
 
-console.log(posts);
 
-/*-------------
-FUNCTIONS
---------------*/
 
-function renderPost(elementHTML, postElement){
+/************
+ * Functions
+ ***********/
 
-    const {author, created, content, media, likes, id} = postElement;
-    const { name: nameAuthor} = author;
-    
-    //Autore
-    elementHTML.querySelector('.post-meta_autor').innerHTML = postElement.author.name; //concatenazione dot notation post --> proprietà author --> proprietà name
-    //Data
-    elementHTML.querySelector('.post-meta_time').innerHTML = created;
-    //Description
-    elementHTML.querySelector('.post_text').innerHTML = content;
-    //Image
-    elementHTML.querySelector('.post_image').src = media;
-    //Likes
-    elementHTML.querySelector('.js-likes-counter').id = `like-counter${id}`;
-    elementHTML.querySelector('.js-likes-counter').innerHTML = likes;
+function renderPost(elementHTML, postElement) {
+
+    //destrutturazione elemento post
+    const { author, created, content, media, likes, id } = postElement;
+    //esempio di destrutturazione proprietà author
+    const { name: nameAuthor } = author;
+
+    //author name
+    elementHTML.querySelector('.post-meta__author').innerHTML = nameAuthor;
+    //date
+    console.log('created', created)
+    const createdAt = convertToIt(created);
+    elementHTML.querySelector('.post-meta__time').innerHTML = createdAt;
+    //description
+    elementHTML.querySelector('.post__text').innerHTML = content;
+    //image
+    elementHTML.querySelector('.post__image > img').src = media;
+    //likes
+    const elementLikeCounter = elementHTML.querySelector('.js-likes-counter');
+    elementLikeCounter.id = `like-counter-${id}`;
+    elementLikeCounter.innerHTML = likes;
+
+    const likeButton = elementHTML.querySelector('.like-button');
+    likeButton.addEventListener('click', function () {
+        if (likedPosts.includes(id)) {
+            likeButton.classList.remove('like-button--liked');
+
+            postElement.likes--;
+            console.log('likes', postElement.likes);
+
+            console.log('elementLikeCounter', elementLikeCounter)
+            elementLikeCounter.innerHTML = postElement.likes;
+
+            likedPosts = likedPosts.filter(element => element !== id);
+            console.log('likedPosts', likedPosts)
+            return;
+        }
+
+        likeButton.classList.add('like-button--liked');
+
+        postElement.likes++;
+        console.log('likes', postElement.likes);
+
+        console.log('elementLikeCounter', elementLikeCounter)
+        elementLikeCounter.innerHTML = postElement.likes;
+
+        likedPosts.push(id);
+    });
+
+    return elementHTML;
 }
 
+// 10-03-2023
 
-//Realizzare la lista dei post
+// Con questa funzione convertiamo una data in qualsiasi formato in una data italiana
+function convertToIt(created) {
+    const dates = created.split('-');
+    console.log('dates', dates);
+    const giorno = dates[1].padStart(2, '0');
+    const mese = dates[0].padStart(2, '0');
+    const anno = dates[2];
+    return `${giorno}-${mese}-${anno}`;
+}
+
+//Realizzare la lista dei post - idee e ipotesi
 //1. creo un ciclo che attraversa la lista dei post
-//2. per ogni post, creo la struttura del post
-//2a 6 - uso createElement per definire ogni porzione del mio template (documento html con troppe classi)
-//2b 7 - uso template literal e innerHTML per creare la struttura del template (problematico per foto e testi che protrebbero cambiare)
-//2c 9 - clono un template html per crere la struttura del template (controllare classi)
-//(2d 10 - framework)
+//2. per ogni post, creo (????) la struttura del post
+//2a  - uso createElement per definire ogni porzione del mio template
+//2b  - uso template literal e innerHTML per creare la struttura del template
+//2c  - clono un template html per creare la struttura del template (scelta a furor di popolo)
+//2d  - lasciamo fare a un framework il lavoro sporco
 
-/*-------------
-RENDER DEI POST
---------------*/
+/**************
+ * Render dei post
+ **************/
 
-const containerElement = document.getElementById('container');
-const templateElement = document.getElementById('template-post');
-//console.log(templateElement);
-
-posts.forEach(element => {
-    console.log(element);
-    const currentHTMLPost = templateElement.content.cloneNode(true);
-    console.log(currentHTMLPost);
-
-    //elaborazione dei dati del post
-
-    currentHTMLPost = renderPost(currentHTMLPost, postElement)
-
-    //containerElement.append(currentPost);
-    containerElement.prepend(currentPost);
-
+posts.forEach(post => {
+    let currentHTMLPost = templateElement.content.cloneNode(true);
+    currentHTMLPost = renderPost(currentHTMLPost, post)
+    containerElement.append(currentHTMLPost);
 });
